@@ -19,39 +19,25 @@ function selectAlgorithm(algorithm) {
     document.getElementById("home-screen").style.display = "none";
     document.getElementById("simulation-screen").style.display = "block";
 
-    document.getElementById("selected-algorithm").textContent =
+    document.getElementById("selected-algorithm").innerText =
         algorithmNames[algorithm];
 
-    document.getElementById("results-section").innerHTML = "";
-
     document.getElementById("input-section").innerHTML = `
-
         <h3>Process Configuration</h3>
 
-        <label>Number of Processes</label>
+        <label>Number of Processes:</label>
 
         <input type="number" id="processCount"
         min="1" max="20" placeholder="Enter number of processes">
 
+        <br><br>
+
         <button onclick="generateInputs()">
             Generate Process Inputs
         </button>
-
-        <div id="process-inputs"></div>
     `;
 
-    window.scrollTo(0, 0);
-}
-
-
-// GO BACK HOME
-
-function goHome() {
-
-    document.getElementById("home-screen").style.display = "block";
-    document.getElementById("simulation-screen").style.display = "none";
-
-    window.scrollTo(0, 0);
+    document.getElementById("results-section").innerHTML = "";
 }
 
 
@@ -59,76 +45,91 @@ function goHome() {
 
 function generateInputs() {
 
-    const count = Number(document.getElementById("processCount").value);
+    let count = Number(document.getElementById("processCount").value);
 
     if (!Number.isInteger(count) || count < 1 || count > 20) {
-        alert("Enter between 1 and 20 processes.");
+        alert("Enter number of processes between 1 and 20.");
         return;
     }
 
-    let html = "<h3>Enter Process Details</h3>";
+    let html = `
+        <h3>Enter Process Details</h3>
 
-    for (let i = 1; i <= count; i++) {
+        <div class="table-container">
+        <table>
+            <tr>
+                <th>Process</th>
+                <th>Arrival Time</th>
+                <th>Burst Time</th>
+                ${currentAlgorithm === "Priority" ? "<th>Priority</th>" : ""}
+            </tr>
+    `;
+
+    for (let i = 0; i < count; i++) {
 
         html += `
-            <div class="algorithm-card">
+            <tr>
+                <td>P${i + 1}</td>
 
-                <h3>Process P${i}</h3>
+                <td>
+                    <input type="number" id="at${i}"
+                    min="0" value="0">
+                </td>
 
-                <label>Arrival Time</label>
-                <input type="number" id="at${i}" min="0" step="1" value="0">
+                <td>
+                    <input type="number" id="bt${i}"
+                    min="1" value="1">
+                </td>
 
-                <label>Burst Time</label>
-                <input type="number" id="bt${i}" min="1" step="1" value="1">
+                ${currentAlgorithm === "Priority" ? `
+                <td>
+                    <input type="number" id="pr${i}"
+                    min="0" value="1">
+                </td>` : ""}
+            </tr>
         `;
-
-        if (currentAlgorithm === "Priority") {
-
-            html += `
-                <label>Priority (smaller number = higher priority)</label>
-                <input type="number" id="pr${i}" step="1" value="1">
-            `;
-        }
-
-        html += "</div>";
     }
 
-    if (currentAlgorithm === "RR") {
+    html += `</table></div>`;
 
+    if (currentAlgorithm === "RR") {
         html += `
-            <label>Time Quantum</label>
-            <input type="number" id="quantum" min="1" step="1" value="2">
+            <br>
+            <label>Time Quantum:</label>
+            <input type="number" id="quantum" min="1" value="2">
         `;
     }
 
     html += `
-        <br>
-        <button onclick="calculateScheduling()">
+        <br><br>
+        <button onclick="calculateSchedule()">
             Calculate Scheduling
         </button>
     `;
 
-    document.getElementById("process-inputs").innerHTML = html;
+    document.getElementById("input-section").innerHTML = html;
+
+    document.getElementById("results-section").innerHTML = "";
 }
 
 
-// READ PROCESS DATA
+// READ PROCESS DETAILS
 
 function readProcesses() {
 
-    const count = Number(document.getElementById("processCount").value);
+    let count = document.querySelectorAll("#input-section table tr").length - 1;
 
     let processes = [];
 
-    for (let i = 1; i <= count; i++) {
+    for (let i = 0; i < count; i++) {
 
-        const arrival = Number(document.getElementById("at" + i).value);
-        const burst = Number(document.getElementById("bt" + i).value);
+        let arrival = Number(document.getElementById("at" + i).value);
+        let burst = Number(document.getElementById("bt" + i).value);
 
         if (!Number.isInteger(arrival) || arrival < 0 ||
-            !Number.isInteger(burst) || burst <= 0) {
+            !Number.isInteger(burst) || burst < 1) {
 
-            alert("Enter valid non-negative arrival times and positive integer burst times.");
+            alert("Enter valid arrival and burst times.");
             return null;
         }
 
@@ -138,20 +139,20 @@ function readProcesses() {
 
             priority = Number(document.getElementById("pr" + i).value);
 
-            if (!Number.isInteger(priority)) {
-                alert("Enter a valid integer priority.");
+            if (!Number.isInteger(priority) || priority < 0) {
+                alert("Enter a valid priority.");
                 return null;
             }
         }
 
         processes.push({
-            pid: "P" + i,
+            pid: "P" + (i + 1),
             arrival: arrival,
             burst: burst,
             remaining: burst,
             priority: priority,
             completion: 0,
-            order: i
+            index: i
         });
     }
 
@@ -159,7 +160,7 @@ function readProcesses() {
 }
 
 
-// ADD GANTT CHART SEGMENT
+// ADD GANTT SEGMENT
 
 function addSegment(chart, pid, start, end) {
 
@@ -179,78 +180,55 @@ function addSegment(chart, pid, start, end) {
 }
 
 
-// FCFS ALGORITHM
+// FCFS, SJF AND PRIORITY
 
-function runFCFS(processes) {
+function nonPreemptive(processes, algorithm) {
 
-    let chart = [];
-    let time = 0;
-
-    let sorted = [...processes].sort(
-        (a, b) => a.arrival - b.arrival || a.order - b.order
-    );
-
-    for (let p of sorted) {
-
-        if (time < p.arrival) {
-            addSegment(chart, "Idle", time, p.arrival);
-            time = p.arrival;
-        }
-
-        let start = time;
-
-        time += p.burst;
-
-        p.completion = time;
-
-        addSegment(chart, p.pid, start, time);
-    }
-
-    return chart;
-}
-
-
-// SJF NON-PREEMPTIVE
-
-function runSJF(processes) {
-
-    let chart = [];
     let time = 0;
     let completed = 0;
+    let chart = [];
 
     while (completed < processes.length) {
 
-        let available = processes.filter(
-            p => p.completion === 0 && p.arrival <= time
+        let available = processes.filter(p =>
+            p.remaining > 0 && p.arrival <= time
         );
 
         if (available.length === 0) {
 
-            let next = Math.min(
-                ...processes
-                    .filter(p => p.completion === 0)
-                    .map(p => p.arrival)
-            );
+            let next = Math.min(...processes
+                .filter(p => p.remaining > 0)
+                .map(p => p.arrival));
 
             addSegment(chart, "Idle", time, next);
             time = next;
             continue;
         }
 
-        available.sort(
-            (a, b) => a.burst - b.burst ||
-                      a.arrival - b.arrival ||
-                      a.order - b.order
-        );
+        available.sort((a, b) => {
+
+            if (algorithm === "FCFS") {
+                return a.arrival - b.arrival || a.index - b.index;
+            }
+
+            if (algorithm === "SJF") {
+                return a.burst - b.burst ||
+                    a.arrival - b.arrival || a.index - b.index;
+            }
+
+            return a.priority - b.priority ||
+                a.arrival - b.arrival || a.index - b.index;
+        });
 
         let p = available[0];
 
         let start = time;
         time += p.burst;
 
-        p.completion = time;
-
         addSegment(chart, p.pid, start, time);
+
+        p.remaining = 0;
+        p.completion = time;
 
         completed++;
     }
@@ -259,86 +237,35 @@ function runSJF(processes) {
 }
 
 
-// PRIORITY NON-PREEMPTIVE
+// SRTF
 
-function runPriority(processes) {
+function srtf(processes) {
 
-    let chart = [];
     let time = 0;
     let completed = 0;
+    let chart = [];
 
     while (completed < processes.length) {
 
-        let available = processes.filter(
-            p => p.completion === 0 && p.arrival <= time
+        let available = processes.filter(p =>
+            p.remaining > 0 && p.arrival <= time
         );
 
         if (available.length === 0) {
 
-            let next = Math.min(
-                ...processes
-                    .filter(p => p.completion === 0)
-                    .map(p => p.arrival)
-            );
+            let next = Math.min(...processes
+                .filter(p => p.remaining > 0)
+                .map(p => p.arrival));
 
             addSegment(chart, "Idle", time, next);
             time = next;
             continue;
         }
 
-        available.sort(
-            (a, b) => a.priority - b.priority ||
-                      a.arrival - b.arrival ||
-                      a.order - b.order
-        );
-
-        let p = available[0];
-
-        let start = time;
-        time += p.burst;
-
-        p.completion = time;
-
-        addSegment(chart, p.pid, start, time);
-
-        completed++;
-    }
-
-    return chart;
-}
-
-
-// SRTF PREEMPTIVE
-
-function runSRTF(processes) {
-
-    let chart = [];
-    let time = 0;
-    let completed = 0;
-
-    while (completed < processes.length) {
-
-        let available = processes.filter(
-            p => p.remaining > 0 && p.arrival <= time
-        );
-
-        if (available.length === 0) {
-
-            let next = Math.min(
-                ...processes
-                    .filter(p => p.remaining > 0)
-                    .map(p => p.arrival)
-            );
-
-            addSegment(chart, "Idle", time, next);
-            time = next;
-            continue;
-        }
-
-        available.sort(
-            (a, b) => a.remaining - b.remaining ||
-                      a.arrival - b.arrival ||
-                      a.order - b.order
+        available.sort((a, b) =>
+            a.remaining - b.remaining ||
+            a.arrival - b.arrival ||
+            a.index - b.index
         );
 
         let p = available[0];
@@ -360,54 +287,53 @@ function runSRTF(processes) {
 
 // ROUND ROBIN
 
-function runRR(processes, quantum) {
-
-    let chart = [];
-    let queue = [];
+function roundRobin(processes, quantum) {
 
     let time = 0;
     let completed = 0;
+    let chart = [];
+    let queue = [];
 
-    let sorted = [...processes].sort(
-        (a, b) => a.arrival - b.arrival || a.order - b.order
+    let sorted = [...processes].sort((a, b) =>
+        a.arrival - b.arrival || a.index - b.index
     );
 
-    let index = 0;
+    let next = 0;
 
     while (completed < processes.length) {
 
-        while (index < sorted.length &&
-               sorted[index].arrival <= time) {
+        while (next < sorted.length &&
+            sorted[next].arrival <= time) {
 
-            queue.push(sorted[index]);
-            index++;
+            queue.push(sorted[next]);
+            next++;
         }
 
         if (queue.length === 0) {
 
-            let next = sorted[index].arrival;
+            let nextTime = sorted[next].arrival;
 
-            addSegment(chart, "Idle", time, next);
-            time = next;
+            addSegment(chart, "Idle", time, nextTime);
+
+            time = nextTime;
             continue;
         }
 
         let p = queue.shift();
 
-        let runTime = Math.min(quantum, p.remaining);
-
         let start = time;
+        let runTime = Math.min(quantum, p.remaining);
 
         time += runTime;
         p.remaining -= runTime;
 
         addSegment(chart, p.pid, start, time);
 
-        while (index < sorted.length &&
-               sorted[index].arrival <= time) {
+        while (next < sorted.length &&
+            sorted[next].arrival <= time) {
 
-            queue.push(sorted[index]);
-            index++;
+            queue.push(sorted[next]);
+            next++;
         }
 
         if (p.remaining > 0) {
@@ -422,9 +348,9 @@ function runRR(processes, quantum) {
 }
 
 
-// CALCULATE SCHEDULING
+// MAIN CALCULATION
 
-function calculateScheduling() {
+function calculateSchedule() {
 
     processData = readProcesses();
 
@@ -432,75 +358,77 @@ function calculateScheduling() {
 
     let chart = [];
 
-    if (currentAlgorithm === "FCFS") {
-        chart = runFCFS(processData);
-    }
+    if (currentAlgorithm === "FCFS" ||
+        currentAlgorithm === "SJF" ||
+        currentAlgorithm === "Priority") {
 
-    else if (currentAlgorithm === "SJF") {
-        chart = runSJF(processData);
+        chart = nonPreemptive(processData, currentAlgorithm);
     }
 
     else if (currentAlgorithm === "SRTF") {
-        chart = runSRTF(processData);
-    }
-
-    else if (currentAlgorithm === "Priority") {
-        chart = runPriority(processData);
+        chart = srtf(processData);
     }
 
     else if (currentAlgorithm === "RR") {
 
         let quantum = Number(document.getElementById("quantum").value);
 
-        if (!Number.isInteger(quantum) || quantum <= 0) {
-            alert("Enter a valid positive integer time quantum.");
+        if (!Number.isInteger(quantum) || quantum < 1) {
+            alert("Enter a valid time quantum.");
             return;
         }
 
-        chart = runRR(processData, quantum);
+        chart = roundRobin(processData, quantum);
     }
 
-    displayResults(chart);
+    showResults(chart);
 }
 
 
 // DISPLAY RESULTS
 
-function displayResults(chart) {
+function showResults(chart) {
 
     let totalTAT = 0;
     let totalWT = 0;
 
     let html = `
-        <h2>Simulation Results</h2>
-
         <h3>Gantt Chart</h3>
 
-        <div class="gantt-chart">
+        <div class="gantt-container">
+            <div class="gantt-chart">
     `;
 
-    for (let block of chart) {
+    chart.forEach(segment => {
 
-        let duration = block.end - block.start;
+        let duration = segment.end - segment.start;
 
         html += `
-            <div class="gantt-block ${block.pid === "Idle" ? "idle" : ""}"
-                 style="flex-grow:${duration}">
-
-                <strong>${block.pid}</strong>
-
-                <small>${block.start} - ${block.end}</small>
-
+            <div class="gantt-block ${segment.pid === "Idle" ? "idle" : ""}"
+            style="flex:${duration}">
+                ${segment.pid}
             </div>
         `;
-    }
+    });
 
     html += `
+            </div>
+
+            <div class="gantt-times">
+                <span>${chart.length ? chart[0].start : 0}</span>
+    `;
+
+    chart.forEach(segment => {
+        html += `<span>${segment.end}</span>`;
+    });
+
+    html += `
+            </div>
         </div>
 
-        <h3>Process Details</h3>
+        <h3>Scheduling Results</h3>
 
-        <div style="overflow-x:auto">
+        <div class="table-container">
         <table>
             <tr>
                 <th>Process</th>
@@ -512,7 +440,7 @@ function displayResults(chart) {
             </tr>
     `;
 
-    for (let p of processData) {
+    processData.forEach(p => {
 
         let tat = p.completion - p.arrival;
         let wt = tat - p.burst;
@@ -530,7 +458,7 @@ function displayResults(chart) {
                 <td>${wt}</td>
             </tr>
         `;
-    }
+    });
 
     let avgTAT = totalTAT / processData.length;
     let avgWT = totalWT / processData.length;
@@ -539,42 +467,31 @@ function displayResults(chart) {
         </table>
         </div>
 
-        <div class="averages">
-            <p>Average Turnaround Time</p>
-            <h3>${avgTAT.toFixed(2)}</h3>
-
-            <p>Average Waiting Time</p>
-            <h3>${avgWT.toFixed(2)}</h3>
+        <div class="average-box">
+            <p>Average Turnaround Time: <strong>${avgTAT.toFixed(2)}</strong></p>
+            <p>Average Waiting Time: <strong>${avgWT.toFixed(2)}</strong></p>
         </div>
 
-        <button onclick="resetSimulation()">Reset</button>
+        <button onclick="calculateSchedule()">Recalculate</button>
+        <button onclick="goHome()" class="back-button">Choose Another Algorithm</button>
     `;
 
-    const results = document.getElementById("results-section");
+    document.getElementById("results-section").innerHTML = html;
 
-    results.innerHTML = html;
-
-    results.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("results-section").scrollIntoView({
+        behavior: "smooth"
+    });
 }
 
 
-// RESET
+// GO BACK HOME
 
-function resetSimulation() {
+function goHome() {
 
-    document.getElementById("input-section").innerHTML = `
-        <h3>Process Configuration</h3>
+    document.getElementById("simulation-screen").style.display = "none";
+    document.getElementById("home-screen").style.display = "block";
 
-        <label>Number of Processes</label>
-
-        <input type="number" id="processCount"
-        min="1" max="20" placeholder="Enter number of processes">
-
-        <button onclick="generateInputs()">
-            Generate Process Inputs
-        </button>
-    `;
-
+    document.getElementById("input-section").innerHTML = "";
     document.getElementById("results-section").innerHTML = "";
 
     window.scrollTo(0, 0);
