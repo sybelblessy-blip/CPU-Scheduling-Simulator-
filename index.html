@@ -3,69 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>CPU Scheduling Simulator</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>CPU Scheduling Simulator</h1>
-        <p>Understand CPU Scheduling Algorithms Visually</p>
-    </header>
+<header class="header">
+    <div class="logo">CPU<span>SIM</span></div>
+    <p>Operating System Simulator</p>
+</header>
 
-    <main>
-        <section class="welcome">
-            <h2>Choose a Scheduling Algorithm</h2>
-            <p>Select an algorithm to start the simulation.</p>
-        </section>
+<main class="container">
 
-        <section class="algorithm-container">
+    <!-- HOME SCREEN -->
+    <section id="home-screen">
+
+        <div class="welcome">
+            <p class="tagline">INTERACTIVE LEARNING TOOL</p>
+            <h1>CPU Scheduling<br>Simulator</h1>
+            <p>
+                Explore, compare and understand CPU scheduling
+                algorithms through interactive simulations.
+            </p>
+        </div>
+
+        <h2 class="section-title">Choose an Algorithm</h2>
+        <p class="section-description">
+            Select an algorithm to begin your simulation.
+        </p>
+
+        <div class="algorithm-container">
 
             <div class="algorithm-card" onclick="selectAlgorithm('FCFS')">
+                <div class="card-icon">01</div>
                 <h3>FCFS</h3>
                 <p>First Come First Serve</p>
-                <button>Select Algorithm</button>
+                <button>Select Algorithm →</button>
             </div>
 
             <div class="algorithm-card" onclick="selectAlgorithm('SJF')">
+                <div class="card-icon">02</div>
                 <h3>SJF</h3>
                 <p>Shortest Job First</p>
-                <button>Select Algorithm</button>
+                <button>Select Algorithm →</button>
             </div>
 
             <div class="algorithm-card" onclick="selectAlgorithm('SRTF')">
+                <div class="card-icon">03</div>
                 <h3>SRTF</h3>
                 <p>Shortest Remaining Time First</p>
-                <button>Select Algorithm</button>
+                <button>Select Algorithm →</button>
             </div>
 
             <div class="algorithm-card" onclick="selectAlgorithm('Priority')">
-                <h3>Priority Scheduling</h3>
-                <p>Execute processes based on priority</p>
-                <button>Select Algorithm</button>
+                <div class="card-icon">04</div>
+                <h3>Priority</h3>
+                <p>Priority Scheduling</p>
+                <button>Select Algorithm →</button>
             </div>
 
             <div class="algorithm-card" onclick="selectAlgorithm('RR')">
+                <div class="card-icon">05</div>
                 <h3>Round Robin</h3>
-                <p>Execute processes using time quantum</p>
-                <button>Select Algorithm</button>
+                <p>Time Quantum Scheduling</p>
+                <button>Select Algorithm →</button>
             </div>
 
-        </section>
+        </div>
+    </section>
 
-        <section id="input-section" style="display:none;">
+
+    <!-- SIMULATION SCREEN -->
+    <section id="simulation-screen" style="display:none;">
+
+        <button class="back-button" onclick="goHome()">
+            ← Back to Algorithms
+        </button>
+
+        <div class="simulation-heading">
+            <p class="tagline">CPU SCHEDULING SIMULATION</p>
             <h2 id="selected-algorithm"></h2>
-            <p>Process input section will appear here.</p>
-        </section>
+            <p>Enter your process details below.</p>
+        </div>
 
-    </main>
+        <div id="input-section"></div>
 
-    <footer>
-        <p>CPU Scheduling Simulator | Operating Systems Project</p>
-    </footer>
+        <div id="results-section"></div>
 
-    <script src="script.js"></script>
+    </section>
+
+</main>
+
+<footer>
+    <p>CPU Scheduling Simulator | Operating Systems Project</p>
+</footer>
+
+<script src="script.js"></script>
 
 </body>
 </html>
