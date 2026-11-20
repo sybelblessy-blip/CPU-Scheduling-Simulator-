@@ -6,116 +6,239 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #F8F6F0;
+    background: #F8F6F0;
     color: #17365D;
 }
 
-header {
-    background-color: #17365D;
+/* HEADER */
+
+.header {
+    background: #17365D;
     color: white;
-    text-align: center;
-    padding: 35px 15px;
+    padding: 22px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-header h1 {
-    font-size: 30px;
-    margin-bottom: 10px;
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
-header p {
+.logo span {
+    color: #42C6B5;
+}
+
+.header p {
     color: #DCE8F2;
-    font-size: 16px;
+    font-size: 14px;
 }
 
-main {
+/* MAIN CONTAINER */
+
+.container {
     max-width: 1100px;
-    margin: 35px auto;
-    padding: 15px;
+    margin: auto;
+    padding: 40px 20px;
 }
+
+/* WELCOME SECTION */
 
 .welcome {
-    text-align: center;
-    margin-bottom: 30px;
+    background: #17365D;
+    color: white;
+    padding: 45px 35px;
+    border-radius: 15px;
+    margin-bottom: 45px;
 }
 
-.welcome h2 {
-    font-size: 26px;
-    margin-bottom: 10px;
+.tagline {
+    color: #42C6B5;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
 }
 
-.welcome p {
+.welcome h1 {
+    font-size: 38px;
+    line-height: 1.3;
+    margin-bottom: 15px;
+}
+
+.welcome > p:last-child {
+    color: #DCE8F2;
+    line-height: 1.7;
+    max-width: 550px;
+}
+
+/* ALGORITHM SECTION */
+
+.section-title {
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+.section-description {
     color: #64748B;
+    margin-bottom: 25px;
 }
 
 .algorithm-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
 .algorithm-card {
-    background-color: white;
-    padding: 25px 18px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(23, 54, 93, 0.10);
-    border: 1px solid #E2E8F0;
+    background: white;
+    border: 1px solid #E1E8EF;
+    border-radius: 13px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(23, 54, 93, 0.07);
     transition: 0.3s;
 }
 
 .algorithm-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 7px 18px rgba(23, 54, 93, 0.15);
+    border-color: #168C8C;
+    box-shadow: 0 8px 20px rgba(23, 54, 93, 0.12);
+}
+
+.card-icon {
+    background: #E5F4F1;
+    color: #168C8C;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 18px;
 }
 
 .algorithm-card h3 {
-    color: #168C8C;
     font-size: 22px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .algorithm-card p {
     color: #64748B;
-    min-height: 40px;
-    margin-bottom: 20px;
-    line-height: 1.5;
+    margin-bottom: 22px;
 }
 
+/* BUTTONS */
+
 button {
-    background-color: #168C8C;
+    background: #168C8C;
     color: white;
     border: none;
-    padding: 12px 18px;
     border-radius: 7px;
+    padding: 12px 18px;
+    font-size: 14px;
     cursor: pointer;
-    font-size: 15px;
+    transition: 0.3s;
 }
 
 button:hover {
-    background-color: #116F70;
+    background: #116F70;
 }
 
-#input-section {
-    background-color: white;
+.algorithm-card button {
+    width: 100%;
+}
+
+.back-button {
+    background: #17365D;
+    margin-bottom: 25px;
+}
+
+/* SIMULATION SCREEN */
+
+.simulation-heading {
+    margin-bottom: 25px;
+}
+
+.simulation-heading h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.simulation-heading p:last-child {
+    color: #64748B;
+}
+
+/* INPUT AND RESULTS */
+
+#input-section,
+#results-section {
+    background: white;
     padding: 25px;
-    margin-top: 30px;
-    border-radius: 12px;
+    border-radius: 13px;
+    margin-top: 20px;
+    border: 1px solid #E1E8EF;
+    box-shadow: 0 4px 12px rgba(23, 54, 93, 0.06);
+}
+
+input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 18px;
+    border: 1px solid #CBD5E1;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+label {
+    font-weight: bold;
+    font-size: 14px;
 }
 
 footer {
-    background-color: #17365D;
+    background: #17365D;
     color: white;
     text-align: center;
-    padding: 20px;
+    padding: 22px;
     margin-top: 40px;
 }
 
+/* MOBILE RESPONSIVE */
+
 @media (max-width: 600px) {
-    header h1 {
-        font-size: 23px;
+
+    .header {
+        padding: 18px;
     }
 
-    .welcome h2 {
+    .header p {
+        font-size: 11px;
+    }
+
+    .logo {
         font-size: 21px;
+    }
+
+    .container {
+        padding: 25px 15px;
+    }
+
+    .welcome {
+        padding: 30px 22px;
+    }
+
+    .welcome h1 {
+        font-size: 29px;
+    }
+
+    .algorithm-container {
+        grid-template-columns: 1fr;
+    }
+
+    .algorithm-card {
+        padding: 22px;
     }
 }
