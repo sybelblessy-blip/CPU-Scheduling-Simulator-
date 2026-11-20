@@ -206,3 +206,138 @@ footer {
     }
 
 }
+/* INPUT FIELDS */
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin: 8px 0 15px;
+    font-size: 15px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+#input-section h3,
+#results-section h3 {
+    margin: 25px 0 15px;
+    color: #193b5b;
+}
+
+/* TABLE */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+}
+
+th {
+    background: #193b5b;
+    color: white;
+    padding: 14px;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #dce5e8;
+}
+
+tr:nth-child(even) {
+    background: #f0f6f5;
+}
+
+/* GANTT CHART */
+
+.gantt-container {
+    margin: 25px 0;
+    overflow-x: auto;
+    padding-bottom: 15px;
+}
+
+.gantt-chart {
+    display: flex;
+    min-width: max-content;
+    width: 100%;
+    min-height: 65px;
+}
+
+.gantt-block {
+    min-width: 55px;
+    background: #168b89;
+    color: white;
+    border-right: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    padding: 12px;
+}
+
+.gantt-block:nth-child(even) {
+    background: #193b5b;
+}
+
+.gantt-block.idle {
+    background: #94a3b8;
+}
+
+.gantt-times {
+    display: flex;
+    justify-content: space-between;
+    min-width: max-content;
+    font-size: 13px;
+    font-weight: bold;
+    padding-top: 8px;
+}
+
+.gantt-times span {
+    min-width: 55px;
+    text-align: left;
+}
+
+/* AVERAGE RESULTS */
+
+.average-box {
+    background: #e4f4f1;
+    padding: 22px;
+    border-radius: 12px;
+    margin: 25px 0;
+    line-height: 2;
+}
+
+.average-box strong {
+    color: #168b89;
+    font-size: 20px;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    #simulation-screen {
+        padding: 18px;
+    }
+
+    th, td {
+        padding: 9px;
+        font-size: 13px;
+    }
+
+    .gantt-block {
+        min-width: 55px;
+    }
+
+}
